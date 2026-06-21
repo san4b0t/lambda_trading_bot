@@ -1,0 +1,6 @@
+[submodule "third_party/lob-engine"]
+	path = third_party/lob-engine
+	url = https://github.com/san4b0t/lob-engine.git
+[submodule "third_party/mini-kafka"]
+	path = third_party/mini-kafka
+	url = https://github.com/san4b0t/mini-kafka.git

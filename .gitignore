@@ -1,0 +1,80 @@
+# =========================
+# Secrets & Configuration
+# =========================
+.env
+.env.production
+.env.local
+*.pem
+*.key
+# Note: .env.example should NOT be ignored, so developers have a template.
+
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# =========================
+# Testing & Linting Caches
+# =========================
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.log
+
+# =========================
+# C++ / CMake (LOB Engine Builds)
+# =========================
+# Ignore all variations of CMake build directories
+build/
+build_release/
+build_debug/
+CMakeCache.txt
+CMakeFiles/
+*.o
+*.a
+*.so
+*.dylib
+*.out
+
+# =========================
+# Next.js / Node.js (Dashboard)
+# =========================
+dashboard/node_modules/
+dashboard/.next/
+dashboard/out/
+dashboard/build/
+dashboard/.swc/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =========================
+# Docker & Infrastructure
+# =========================
+# Ignore local redis volume data if mapped to the host
+redis_data/
+kafka_data/
+
+# =========================
+# OS & IDE Files
+# =========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
