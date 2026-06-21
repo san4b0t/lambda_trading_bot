@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:7.2-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  mini_kafka:
+    build: ./third_party/mini-kafka
+    ports:
+      - "9092:9092"
+    restart: unless-stopped
+
+volumes:
+  redis_data:
