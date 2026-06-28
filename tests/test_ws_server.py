@@ -10,6 +10,7 @@ def test_websocket_market_stream(mocker):
     mock_consumer = mocker.patch("src.api.ws_server.MiniKafkaConsumer")
     instance = mock_consumer.return_value
     instance.connect = AsyncMock()
+    instance.close = AsyncMock()
     
     # Create an async generator that yields one fake market tick
     async def fake_consume():

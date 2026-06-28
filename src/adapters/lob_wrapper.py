@@ -28,6 +28,6 @@ class LocalLobEngine:
         if not self.process or self.process.returncode is not None:
             raise RuntimeError("C++ LOB Engine subprocess is dead or uninitialized.")
         
-        payload = json.dumps({"action": "add", "price": price, "qty": qty, "side": side}) + "\n"
+        payload = f"add {price} {qty} {side}\n"
         self.process.stdin.write(payload.encode())
         await self.process.stdin.drain()
