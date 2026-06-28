@@ -18,8 +18,6 @@ async def test_lob_wrapper_pushes_tick(mock_subprocess):
     
     await lob.push_tick(price=45000.0, qty=1.5, side="buy")
     
-    # Verify the JSON payload was correctly formatted and sent to stdin
     mock_subprocess.stdin.write.assert_called_once()
     call_arg = mock_subprocess.stdin.write.call_args[0][0].decode()
-    assert '"action": "add"' in call_arg
-    assert '"price": 45000.0' in call_arg
+    assert call_arg == "add 45000.0 1.5 buy\n"

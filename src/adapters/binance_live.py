@@ -7,11 +7,14 @@ logger = logging.getLogger(__name__)
 class BinanceLiveAdapter:
     def __init__(self):
         self.exchange = ccxt.binance({
-            'apiKey': os.getenv('BINANCE_API_KEY'),
-            'secret': os.getenv('BINANCE_API_SECRET'),
+            'apiKey': os.getenv('BINANCE_TESTNET_API_KEY'),
+            'secret': os.getenv('BINANCE_TESTNET_API_SECRET'),
             'enableRateLimit': True,
             'options': {'defaultType': 'spot'}
         })
+
+        self.exchange.set_sandbox_mode(True)
+        logger.info("Binance Adapter Initialized in SANDBOX (Testnet) Mode.")
 
     async def fetch_balance(self) -> float:
         try:
