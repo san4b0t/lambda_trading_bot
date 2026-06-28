@@ -1,60 +1,72 @@
 "use client";
 import { useEffect, useState } from "react";
 
-interface MarketMessage {
-  topic: string;
-  data: {
-    symbol: string;
-    price: number;
-    side: string;
-  };
-}
-
 export default function Dashboard() {
   const [price, setPrice] = useState<number>(0);
   const [side, setSide] = useState<string>("none");
+  const [balance, setBalance] = useState<number>(0);
   const [status, setStatus] = useState<string>("Connecting...");
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8000/ws/market");
+    const wsMarket = new WebSocket("ws://localhost:8000/ws/market");
+    const wsPortfolio = new WebSocket("ws://localhost:8000/ws/portfolio");
 
-    ws.onopen = () => {
-      setStatus("Connected to Live Engine");
-    };
+    wsMarket.onopen = () => setStatus("Connected to Live Engine");
+    wsMarket.onclose = () => setStatus("Disconnected from Engine");
 
-    ws.onmessage = (event) => {
+    wsMarket.onmessage = (event) => {
       try {
-        const parsed: MarketMessage = JSON.parse(event.data);
-        if (parsed.data && parsed.data.price) {
+        const parsed = JSON.parse(event.data);
+        if (parsed.data.price) {
           setPrice(parsed.data.price);
           setSide(parsed.data.side);
         }
-      } catch (err) {
-        console.error(
-          "Failed to parse incoming WebSocket message stream:",
-          err,
-        );
-      }
+      } catch (err) {}
     };
 
-    ws.onclose = () => {
-      setStatus("Disconnected from Engine");
+    wsPortfolio.onmessage = (event) => {
+      try {
+        const parsed = JSON.parse(event.data);
+        if (parsed.data.balance !== undefined) {
+          setBalance(parsed.data.balance);
+        }
+      } catch (err) {}
     };
 
-    return () => ws.close();
+    return () => {
+      wsMarket.close();
+      wsPortfolio.close();
+    };
   }, []);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-zinc-950 text-white p-6">
       <div className="w-full max-w-md p-8 border border-zinc-800 rounded-xl bg-zinc-900 shadow-2xl">
-        <h1 className="text-2xl font-bold tracking-tight mb-2">
-          System Diagnostics
-        </h1>
-        <div className="flex items-center gap-2 mb-6">
-          <span
-            className={`h-2.5 w-2.5 rounded-full ${status.includes("Connected") ? "bg-emerald-500 animate-pulse" : "bg-rose-500"}`}
-          ></span>
-          <p className="text-xs text-zinc-400 font-medium">{status}</p>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-xl font-bold tracking-tight">
+            System Diagnostics
+          </h1>
+          <div className="flex items-center gap-2">
+            <span
+              className={`h-2 w-2 rounded-full ${status.includes("Connected") ? "bg-emerald-500 animate-pulse" : "bg-rose-500"}`}
+            ></span>
+            <p className="text-xs text-zinc-400 font-medium">{status}</p>
+          </div>
+        </div>
+
+        <div className="mb-4 p-4 rounded-lg bg-indigo-950/30 border border-indigo-900/50">
+          <h2 className="text-xs uppercase tracking-wider text-indigo-400 font-bold mb-1">
+            Live Testnet Balance
+          </h2>
+          <p className="text-3xl font-mono font-semibold tracking-tight text-white">
+            $
+            {balance > 0
+              ? balance.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })
+              : "0.00"}
+          </p>
         </div>
 
         <div className="space-y-4">

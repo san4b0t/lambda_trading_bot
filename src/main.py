@@ -5,6 +5,7 @@ import redis.asyncio as redis
 from dotenv import load_dotenv
 from src.adapters.binance_live import BinanceLiveAdapter
 from src.adapters.lob_wrapper import LocalLobEngine
+from src.adapters.lob_mock import MockLobEngine
 from src.adapters.mini_kafka_client import MiniKafkaProducer
 from src.core.risk_manager import RiskManager
 from src.domain.models import Signal, Side, OrderType
@@ -35,6 +36,8 @@ async def execution_strategy_loop(binance: BinanceLiveAdapter, risk: RiskManager
 
         current_equity = await binance.fetch_balance()
         risk.update_equity(current_equity)
+
+        await producer.publish("portfolio", {"balance": current_equity})
         
         if not risk.allow_trade():
             logger.critical("Strategy Execution Loop Forced Stopped by Risk Management.")
@@ -65,8 +68,8 @@ async def main():
     binance = BinanceLiveAdapter()
     lob = LocalLobEngine()
     kafka_producer = MiniKafkaProducer(
-        host=os.getenv("MINI_KAFKA_HOST", "127.0.0.1"), 
-        port=int(os.getenv("MINI_KAFKA_PORT", 9092))
+        host=os.getenv("MINI_KAFKA_HOST", "127.0.0.1"),
+        port=int(os.getenv("MINI_KAFKA_PORT", 8081))
     )
     cache = redis.Redis(
         host=os.getenv("REDIS_HOST", "localhost"), 
@@ -89,7 +92,10 @@ async def main():
         logger.warning("System threads caught cancel signal. Tearing down safely.")
     finally:
         await binance.close()
-        await cache.close()
+        await kafka_producer.close()
+        await cache.aclose()
+        if lob.process and lob.process.returncode is None:
+            lob.process.terminate()
 
 if __name__ == "__main__":
     try:
